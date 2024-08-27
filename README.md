@@ -40,11 +40,14 @@ pip install torch albumentations numpy scikit-learn tqdm pillow
 
 Task 1: Training with BCEWithLogitsLoss:-
 
-Data Preparation: The dataset is split into training (15 images) and validation (5 images) sets. Data augmentation is applied during training to enhance model generalization. The image size is standardized to 320x320 pixels.
+Data Preparation: 
+The dataset is split into training (15 images) and validation (5 images) sets. Data augmentation is applied during training to enhance model generalization. The image size is standardized to 320x320 pixels.
 
-Model Initialization: The U-2-Net model is initialized with 3 input channels (for RGB images) and 1 output channel (for binary masks).
+Model Initialization: 
+The U-2-Net model is initialized with 3 input channels (for RGB images) and 1 output channel (for binary masks).
 
-Loss Function and Optimizer: The model is trained using the BCEWithLogitsLoss function and the Adam optimizer with a learning rate of 0.0001.
+Loss Function and Optimizer: 
+The model is trained using the BCEWithLogitsLoss function and the Adam optimizer with a learning rate of 0.0001.
 
 Training Process: The model is trained for 20 epochs. During each epoch, the model's performance is evaluated using the Dice Score and IoU metrics on the validation set.
 
