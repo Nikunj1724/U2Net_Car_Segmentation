@@ -1,0 +1,117 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+from sklearn.metrics import jaccard_score
+import numpy as np
+from tqdm import tqdm
+import os
+from PIL import Image
+from u2net import U2NET
+
+# Custom dataset class
+class SegmentationDataset(Dataset):
+    def __init__(self, image_dir, mask_dir, transform=None):
+        self.image_dir = image_dir
+        self.mask_dir = mask_dir
+        self.transform = transform
+        self.images = os.listdir(image_dir)
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, index):
+        img_path = os.path.join(self.image_dir, self.images[index])
+        mask_path = os.path.join(self.mask_dir, self.images[index].replace(".jpg", ".png"))
+        image = np.array(Image.open(img_path).convert("RGB"))
+        mask = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
+        mask[mask > 0] = 1.0  # Convert mask to binary
+
+        if self.transform:
+            augmented = self.transform(image=image, mask=mask)
+            image = augmented['image']
+            mask = augmented['mask']
+
+        if mask.ndim == 2:
+            mask = mask[None, :, :]
+
+        return image, mask
+
+# Define augmentations
+train_transform = A.Compose([
+    A.Resize(320, 320),
+    A.HorizontalFlip(p=0.5),
+    A.VerticalFlip(p=0.5),
+    A.Rotate(limit=35, p=0.5),
+    A.Normalize(mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0), max_pixel_value=255.0),
+    ToTensorV2(),
+])
+
+val_transform = A.Compose([
+    A.Resize(320, 320),
+    A.Normalize(mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0), max_pixel_value=255.0),
+    ToTensorV2(),
+])
+
+# Load datasets
+train_dataset = SegmentationDataset(image_dir='Image',
+                                    mask_dir='Mask',
+                                    transform=train_transform)
+
+val_dataset = SegmentationDataset(image_dir='Image',
+                                  mask_dir='Mask',
+                                  transform=val_transform)
+
+train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)
+val_loader = DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=2)
+
+# Initialize model, loss function, optimizer
+model = U2NET(3, 1).cuda()
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr=1e-4)
+
+# Training and validation loop
+num_epochs = 20
+
+for epoch in range(num_epochs):
+    model.train()
+    loop = tqdm(train_loader, total=len(train_loader), leave=False)
+    for images, masks in loop:
+        images, masks = images.cuda(), masks.cuda()
+
+        # Forward pass
+        outputs = model(images)
+        loss = criterion(outputs[-1],masks)
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        loop.set_description(f"Epoch [{epoch}/{num_epochs}]")
+        loop.set_postfix(loss=loss.item())
+
+    # Validation
+    model.eval()
+    dice_score = 0
+    iou_score = 0
+    with torch.no_grad():
+        for images, masks in val_loader:
+            images, masks = images.cuda(), masks.cuda()
+            outputs = model(images)
+            preds = torch.sigmoid(outputs[-1])
+            preds = (preds > 0.5).float()
+
+            # Calculate Dice Score and IoU
+            intersection = (preds * masks).sum()
+            union = preds.sum() + masks.sum()
+            dice_score += (2.0 * intersection + 1e-7) / (union + 1e-7)
+            iou_score += jaccard_score(masks.cpu().numpy().flatten(), preds.cpu().numpy().flatten())
+
+    dice_score /= len(val_loader)
+    iou_score /= len(val_loader)
+    print(f"Validation Dice Score: {dice_score.item()}, IoU: {iou_score}")
+
+torch.save(model.state_dict(), "u2net_segmentation.pth")
