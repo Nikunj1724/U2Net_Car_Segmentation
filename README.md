@@ -23,11 +23,17 @@ Requirements:
 To run the code and train the model, ensure you have the following Python libraries installed:
 
 PyTorch
+
 Albumentations
+
 NumPy
+
 scikit-learn
+
 tqdm
+
 PIL (Pillow)
+
 You can install these packages using pip. For example:
 
 pip install torch albumentations numpy scikit-learn tqdm pillow
