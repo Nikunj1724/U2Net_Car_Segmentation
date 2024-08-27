@@ -49,19 +49,25 @@ The U-2-Net model is initialized with 3 input channels (for RGB images) and 1 ou
 Loss Function and Optimizer: 
 The model is trained using the BCEWithLogitsLoss function and the Adam optimizer with a learning rate of 0.0001.
 
-Training Process: The model is trained for 20 epochs. During each epoch, the model's performance is evaluated using the Dice Score and IoU metrics on the validation set.
+Training Process:
+The model is trained for 20 epochs. During each epoch, the model's performance is evaluated using the Dice Score and IoU metrics on the validation set and if you want you can the change the epochs. but make sure not get in overfitting situation. 
 
-Saving the Model: The trained model is saved as u2net_segmentation.pth.
+Saving the Model: 
+The trained model is saved as u2net_segmentation.pth.
 
 Task 2: Retraining with DiceLoss:-
 
-Data Preparation: The dataset remains the same as in Task 1, with training and validation sets split accordingly and augmented to improve model performance.
+Data Preparation: 
+The dataset remains the same as in Task 1, with training and validation sets split accordingly and augmented to improve model performance.
 
-Custom Loss Function: In this task, the model is retrained using the DiceLoss function. This loss function is particularly effective for tasks with imbalanced datasets or where the foreground is of primary interest.
+Custom Loss Function:
+In this task, the model is retrained using the DiceLoss function. This loss function is particularly effective for tasks with imbalanced datasets or where the foreground is of primary interest.
 
-Training Process: The training setup is similar to Task 1, but with DiceLoss replacing BCEWithLogitsLoss. The model is trained for 20 epochs, and performance is evaluated using the Dice Score and IoU metrics.
+Training Process: 
+The training setup is similar to Task 1, but with DiceLoss replacing BCEWithLogitsLoss. The model is trained for 20 epochs, and performance is evaluated using the Dice Score and IoU metrics. feel free to change epochs if you want
 
-Saving the Model: The retrained model is saved as u2net_segmentation_dice_loss.pth.
+Saving the Model: 
+The retrained model is saved as u2net_segmentation_dice_loss.pth.
 
 Evaluation Metrics:
 
@@ -73,10 +79,11 @@ Intersection over Union (IoU): Evaluates the ratio of the intersection of predic
 Usage:
 
 To use the provided code, follow these steps:
-Ensure you have all the required dependencies installed.
-Place your dataset in the Image/ and Mask/ directories.
-Execute the training scripts for either Task 1 or Task 2.
-Check the u2net_segmentation.pth or u2net_segmentation_dice_loss.pth files for the trained model weights.
+* Ensure you have all the required dependencies installed.
+* Place your dataset in the Image/ and Mask/ directories.
+* Execute the training scripts for either Task 1 or Task 2.
+* Check the u2net_segmentation.pth or u2net_segmentation_dice_loss.pth files for the trained model weights.
+  
 Contributing:
 
 If you would like to contribute to this project, please fork the repository, make your changes, and submit a pull request. For major changes, please open an issue to discuss what you would like to change.
