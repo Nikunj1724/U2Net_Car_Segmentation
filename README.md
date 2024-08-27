@@ -9,18 +9,15 @@ Task 2: Retrain the model using the DiceLoss function.
 Both tasks involve splitting a dataset of car images and masks into training and validation sets, applying data augmentation, and evaluating model performance using the Dice Score and Intersection over Union (IoU) metrics.
 
 Dataset:
-
 The dataset used for training and validation consists of 20 image-mask pairs of cars. The images come in both landscape and portrait orientations, and the corresponding masks are aligned accordingly. The masks are binary, where white represents the car and black represents the background.
 
 Directory Structure:
-
 The repository includes the following key directories:
 
 Image/: Contains all the car images in JPEG format.
 Mask/: Contains the corresponding mask images in PNG format.
 
 Requirements:
-
 To run the code and train the model, ensure you have the following Python libraries installed:
 
 PyTorch
